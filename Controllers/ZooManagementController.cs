@@ -69,7 +69,6 @@ public class ZooManagementController : ControllerBase
             return BadRequest(new { message = "That animal type does not current exist on our database."});
         }
 
-        
         var animalType = _context.AnimalTypes.SingleOrDefault(at => at.Species == animal.AnimalType);
         // var matchingClassification = await _context.AnimalTypes
         //         .Where(a => a.Species == animal.AnimalType)
