@@ -66,7 +66,7 @@ public class ZooManagementController : ControllerBase
         var animalTypeExists = _context.AnimalTypes.Any(a => a.Species!.Equals(animal.AnimalType));
         if (!animalTypeExists)
         {
-            return BadRequest(new { message = "That animal type does not current exist on our database."});
+            return BadRequest(new { message = "That animal type does not current exist on our database." });
         }
 
         var animalType = _context.AnimalTypes.SingleOrDefault(at => at.Species == animal.AnimalType);
@@ -78,10 +78,11 @@ public class ZooManagementController : ControllerBase
         var animalsInEnclosure = _context.Animals
             .AsNoTracking()
             .Where(a => a.Enclosure!.EnclosureId == animal.EnclosureId);
-        if (animalsInEnclosure.Count() >= selectedEnclosure!.MaxAnimals) {
-            return BadRequest(new { message = "Selected enclosure is full."});
+        if (animalsInEnclosure.Count() >= selectedEnclosure!.MaxAnimals)
+        {
+            return BadRequest(new { message = "Selected enclosure is full." });
         }
-        
+
         var newAnimal = new Animal()
         {
             AnimalTypeId = animalType!.AnimalTypeId,
@@ -91,9 +92,12 @@ public class ZooManagementController : ControllerBase
             DateAcquired = animal.DateAcquired,
             EnclosureId = animal.EnclosureId
         };
-        
+
         _context.Animals.Add(newAnimal);
         await _context.SaveChangesAsync();
         return Ok(new { message = "Animal successfully added." });
     }
+    
+
+    
 }
