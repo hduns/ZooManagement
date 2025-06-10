@@ -106,6 +106,7 @@ public class ZooManagementController : ControllerBase
             .Include(z => z.WorkAllocations!)
             .ThenInclude(w => w.Enclosure)
             .ThenInclude(e => e!.AnimalsInEnclosure)
+            .ThenInclude(e => e!.AnimalType)
             .Where(z => z.ZookeeperId == id);
 
         if (zookeeper == null)

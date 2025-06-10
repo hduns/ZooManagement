@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ZooManagement.Models;
@@ -59,8 +60,13 @@ public class ZooController : BaseApiController
         // Sorting
         query = SortQuery(parameters.SortBy!, query);
 
+        foreach (Animal animal in query)
+        {
+            animal.Enclosure.AnimalsInEnclosure = null;
+        }
+
         // Paging
-        var skipAmount = (parameters.PageNumber - 1) * parameters.PageSize;
+            var skipAmount = (parameters.PageNumber - 1) * parameters.PageSize;
         query = query.Skip(skipAmount).Take(parameters.PageSize);
 
         return Ok(query.ToList());
