@@ -2,6 +2,10 @@ namespace ZooManagement.Models;
 
 public class Animal 
 {
+        public Animal()
+    {
+        WorkAllocationForAnimal = new List<WorkAllocation>();
+    }
     public int AnimalId { get; set; }
     public int AnimalTypeId { get; set; }
     public AnimalType? AnimalType { get; set; }
@@ -14,4 +18,5 @@ public class Animal
     public string? TransferLocation { get; set; } = null;
     public int EnclosureId { get; set; }
     public Enclosure? Enclosure { get; set; }
+    // public IList<WorkAllocation>? WorkAllocationForAnimal { get; set; }
 }
