@@ -102,10 +102,11 @@ public class ZooManagementController : ControllerBase
     [Route("Zookeeper/{id}")]
     public ActionResult<Zookeeper> GetZookeeper(int id)
     {
-        var zookeeper = _context.WorkAllocations
-            .Include(w => w.Zookeeper)
-            .Include(w => w.Enclosure)
-            .Where(w => w.ZookeeperId == id);
+        var zookeeper = _context.Zookeepers
+            .Include(z => z.WorkAllocations!)
+            .ThenInclude(w => w.Enclosure)
+            .ThenInclude(e => e!.AnimalsInEnclosure)
+            .Where(z => z.ZookeeperId == id);
 
         if (zookeeper == null)
         {
@@ -113,6 +114,36 @@ public class ZooManagementController : ControllerBase
         }
 
         return Ok(zookeeper);
+    }
+
+    [HttpPost]
+    [Route("Zookeeper")]
+    public async Task<IActionResult> PostAddZookeeper([FromBody] AddZookeeperRequest zookeeper)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest();
+        }
+
+        var zookeeperExists = _context.Zookeepers.Any(z => z.Name!.Equals(zookeeper.ZookeeperName));
+        if (zookeeperExists)
+        {
+            return BadRequest(new { message = $"{zookeeper.ZookeeperName} already exists on our database." });
+        }
+
+        var newZookeeper = new Zookeeper { Name = zookeeper.ZookeeperName};
+        _context.Zookeepers.Add(newZookeeper);
+        await _context.SaveChangesAsync();
+
+        foreach(int enclosureId in zookeeper.EnclosureIds!) 
+        {
+            var newWorkAllocation = new WorkAllocation { ZookeeperId = newZookeeper.ZookeeperId, EnclosureId = enclosureId };
+            _context.WorkAllocations.Add(newWorkAllocation);
+            await _context.SaveChangesAsync();
+        }
+
+        return Ok(new { message = "Zookeeper successfully added." });
+
     }
 
 }
