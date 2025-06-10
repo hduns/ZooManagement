@@ -34,7 +34,16 @@ public class ZooController : BaseApiController
             }
             else if (int.TryParse(parameters.SearchTerm, out int searchAge))
             {
-                query = query.Where(a => ConvertAnimalAge(a) == searchAge);
+                var animals = _context.Animals;
+                var foundAnimals = new List<Animal>();
+                foreach (var animal in animals)
+                {
+                    if (CheckAnimalAge(animal, searchAge) != null)
+                    {
+                        foundAnimals.Add(animal);
+                    }
+                }
+                query = query.Where(a => foundAnimals.Contains(a));
             }
             else
             {
@@ -43,15 +52,8 @@ public class ZooController : BaseApiController
         }
         ;
 
-
-
-        // search by species, classification (mammal/reptile/bird etc.), age (as a number not a date of birth), name and date the zoo acquired them. 
-
         // Sorting
-        // if (!string.IsNullOrWhiteSpace(parameters.SortBy))
-        // {
-        //     query = query.OrderByDynamic(parameters.SortBy);
-        // }
+        query = SortQuery(parameters.SortBy!, query);
 
         // Paging
         var skipAmount = (parameters.PageNumber - 1) * parameters.PageSize;
@@ -60,20 +62,24 @@ public class ZooController : BaseApiController
         return Ok(query.ToList());
     }
 
-    public static int ConvertAnimalAge(Animal animal)
+    public static Animal? CheckAnimalAge(Animal animal, int searchAge)
     {
         var age = DateTime.Today.Year - animal.DateOfBirth.Year;
         if (animal.DateOfBirth.ToDateTime(TimeOnly.MinValue) > DateTime.Today.AddYears(-age)) age--;
-        Console.WriteLine(age);
-        return age;
+        if (searchAge == age)
+        {
+            return animal;
+        }
+        return null;
+    }
+
+    public static IQueryable<Animal> SortQuery(string sortByTerm, IQueryable<Animal> query)
+    {
+        if (sortByTerm == "Name") return query.OrderBy(a => a.Name);
+        else if (sortByTerm == "Class") return query.OrderBy(a => a.AnimalType!.Classification!.Class);
+        else if (sortByTerm == "Date of Birth") return query.OrderBy(a => a.DateOfBirth);
+        else if (sortByTerm == "Date Acquired") return query.OrderBy(a => a.DateAcquired);
+        else if (sortByTerm == "Enclosure") return query.OrderBy(a => a.Enclosure!.Name);
+        else return query = query.OrderBy(a => a.AnimalType!.Species);
     }
 }
-
-
-
-// public static int ConvertAnimalAge(Animal animal)
-// {
-//     var age = DateTime.Today.Year - animal.DateOfBirth.Year;
-//     if (animal.DateOfBirth.ToDateTime(TimeOnly.MinValue) > DateTime.Today.AddYears(-age)) age--;
-//     return age;
-// }
