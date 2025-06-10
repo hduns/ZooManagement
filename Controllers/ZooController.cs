@@ -47,11 +47,15 @@ public class ZooController : BaseApiController
             }
             else
             {
-                query = query.Where(a => a.Name!.ToLower().Contains(parameters.SearchTerm.ToLower()) || a.AnimalType!.Species!.ToLower().Contains(parameters.SearchTerm.ToLower()) || a.AnimalType!.Classification!.Class!.ToLower().Contains(parameters.SearchTerm.ToLower()));
+                var lowerCaseSearchTerm = parameters.SearchTerm.ToLower();
+                query = query.Where(a => a.Name!.ToLower().Contains(lowerCaseSearchTerm) || a.AnimalType!.Species!.ToLower().Contains(lowerCaseSearchTerm) || a.AnimalType!.Classification!.Class!.ToLower().Contains(lowerCaseSearchTerm));
             }
         }
-        ;
-
+        if (!string.IsNullOrWhiteSpace(parameters.SearchEnclosure))
+        {
+            query = query.Where(a => a.Enclosure!.Name!.ToLower().Contains(parameters.SearchEnclosure.ToLower()));
+        }
+        
         // Sorting
         query = SortQuery(parameters.SortBy!, query);
 
@@ -79,7 +83,7 @@ public class ZooController : BaseApiController
         else if (sortByTerm == "Class") return query.OrderBy(a => a.AnimalType!.Classification!.Class);
         else if (sortByTerm == "Date of Birth") return query.OrderBy(a => a.DateOfBirth);
         else if (sortByTerm == "Date Acquired") return query.OrderBy(a => a.DateAcquired);
-        else if (sortByTerm == "Enclosure") return query.OrderBy(a => a.Enclosure!.Name);
+        else if (sortByTerm == "Enclosure") return query.OrderBy(a => a.Enclosure!.EnclosureId).ThenBy(a => a.Name);
         else return query = query.OrderBy(a => a.AnimalType!.Species);
     }
 }

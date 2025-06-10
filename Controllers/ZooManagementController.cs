@@ -97,7 +97,22 @@ public class ZooManagementController : ControllerBase
         await _context.SaveChangesAsync();
         return Ok(new { message = "Animal successfully added." });
     }
-    
 
-    
+    [HttpGet]
+    [Route("Zookeeper/{id}")]
+    public ActionResult<Zookeeper> GetZookeeper(int id)
+    {
+        var zookeeper = _context.WorkAllocations
+            .Include(w => w.Zookeeper)
+            .Include(w => w.Enclosure)
+            .Where(w => w.ZookeeperId == id);
+
+        if (zookeeper == null)
+        {
+            return NotFound(new { message = $"Zookeeper with ID {id} not found." });
+        }
+
+        return Ok(zookeeper);
+    }
+
 }

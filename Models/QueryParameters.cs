@@ -15,4 +15,6 @@ public class QueryParameters
     public string? SortBy { get; set; }
 
     public string? SearchTerm { get; set; }
+
+    public string? SearchEnclosure { get; set; }
 }
