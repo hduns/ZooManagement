@@ -47,7 +47,7 @@ public class ZooController : BaseApiController
             }
             else
             {
-                query = query.Where(a => a.Name!.Contains(parameters.SearchTerm) || a.AnimalType!.Species!.Contains(parameters.SearchTerm) || a.AnimalType!.Classification!.Class!.Contains(parameters.SearchTerm));
+                query = query.Where(a => a.Name!.ToLower().Contains(parameters.SearchTerm.ToLower()) || a.AnimalType!.Species!.ToLower().Contains(parameters.SearchTerm.ToLower()) || a.AnimalType!.Classification!.Class!.ToLower().Contains(parameters.SearchTerm.ToLower()));
             }
         }
         ;
